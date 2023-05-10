@@ -8,8 +8,8 @@ import com.mitsinsar.scorpcasestudy.peoplelisting.data.model.PersonResponse
 import com.mitsinsar.scorpcasestudy.peoplelisting.data.utils.PeopleGen
 import com.mitsinsar.scorpcasestudy.peoplelisting.data.utils.RandomUtils
 import java.io.IOException
-import kotlin.math.min
 import javax.inject.Inject
+import kotlin.math.min
 
 typealias FetchCompletionHandler = (FetchResponse?, FetchError?) -> Unit
 
