@@ -7,11 +7,13 @@ import com.mitsinsar.scorpcasestudy.peoplelisting.data.model.FetchResponse
 import com.mitsinsar.scorpcasestudy.peoplelisting.data.model.PersonResponse
 import com.mitsinsar.scorpcasestudy.peoplelisting.data.utils.PeopleGen
 import com.mitsinsar.scorpcasestudy.peoplelisting.data.utils.RandomUtils
+import java.io.IOException
 import kotlin.math.min
+import javax.inject.Inject
 
 typealias FetchCompletionHandler = (FetchResponse?, FetchError?) -> Unit
 
-class DataSource {
+class PeopleDataSource @Inject constructor() {
 
     private data class ProcessResult(
         val fetchResponse: FetchResponse?,
@@ -70,7 +72,7 @@ class DataSource {
         val waitTime: Double
         if (isError) {
             waitTime = RandomUtils.generateRandomDouble(range = Constants.lowWaitTimeRange)
-            error = FetchError(errorDescription = "Internal Server Error")
+            error = FetchError(IOException("Internal Server Error"))
         } else {
             waitTime = RandomUtils.generateRandomDouble(range = Constants.highWaitTimeRange)
             val fetchCount = RandomUtils.generateRandomInt(range = Constants.fetchCountRange)
@@ -81,7 +83,7 @@ class DataSource {
                 null
             }
             if (next != null && (nextIntValue == null || nextIntValue < 0)) {
-                error = FetchError(errorDescription = "Parameter error")
+                error = FetchError(IOException("Parameter error"))
             } else {
                 val endIndex: Int = min(peopleCount, fetchCount + (nextIntValue ?: 0))
                 val beginIndex: Int = if (next == null) 0 else min(nextIntValue!!, endIndex)
