@@ -1,0 +1,17 @@
+configurations {
+    ktlint
+}
+
+dependencies {
+    ktlint "com.pinterest:ktlint:0.49.0"
+}
+
+task ktlint(type: JavaExec, group: "verification") {
+    description = "Check Kotlin code style."
+    classpath = configurations.ktlint
+    main = "com.pinterest.ktlint.Main"
+    args "src/**/*.kt"
+    args "--reporter=html,output=${buildDir}/reports/ktlint/ktlint.html"
+}
+
+preBuild.dependsOn ktlint

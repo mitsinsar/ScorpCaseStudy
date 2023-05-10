@@ -1,6 +1,7 @@
 package com.mitsinsar.scorpcasestudy.peoplelisting.data.utils
 
 internal object PeopleGen {
+
     private val firstNames = listOf(
         "Fatma",
         "Mehmet",
@@ -17,8 +18,9 @@ internal object PeopleGen {
         "İbrahim",
         "Can",
         "Murat",
-        "Özlem"
+        "Özlem",
     )
+
     private val lastNames = listOf(
         "Yılmaz",
         "Şahin",
@@ -31,7 +33,7 @@ internal object PeopleGen {
         "Taş",
         "Aksoy",
         "Barış",
-        "Dalkıran"
+        "Dalkıran",
     )
 
     fun generateRandomFullName(): String {

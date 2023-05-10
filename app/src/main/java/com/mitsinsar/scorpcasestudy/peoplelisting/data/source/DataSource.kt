@@ -16,7 +16,7 @@ class DataSource {
     private data class ProcessResult(
         val fetchResponse: FetchResponse?,
         val fetchError: FetchError?,
-        val waitTime: Double
+        val waitTime: Double,
     )
 
     private object Constants {

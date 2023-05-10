@@ -3,6 +3,8 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
+apply from: 'linter.gradle'
+
 android {
     namespace 'com.mitsinsar.scorpcasestudy'
     compileSdk 33
