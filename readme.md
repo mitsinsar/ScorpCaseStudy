@@ -2,6 +2,14 @@
 
 Simple app that lists people which are fetched from mock network called `PeopleDataSource`.
 
+Changes
+---
+There have been some changes on provided files. These changes are;
+
+* `Person.kt` was renamed as `PersonResponse.kt` to make it obvious that this class belongs to `data` layer.
+* `DataSource` was renamed as `PeopleDataSource` to make it more specific that it belongs to `people`.
+* `FetchError` used to have `String`. Now it has `Throwable`, to be able to make error messages more user friendly/localized.
+
 APK
 ---
 To install the app, `.apk` can be found in `ScorpCaseStudy/app-debug.apk`. It is an unsigned apk (signed with debug key).
