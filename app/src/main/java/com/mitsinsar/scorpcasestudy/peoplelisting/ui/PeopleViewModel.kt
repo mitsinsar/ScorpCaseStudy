@@ -2,6 +2,7 @@ package com.mitsinsar.scorpcasestudy.peoplelisting.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mitsinsar.scorpcasestudy.core.ui.utils.coroutine.SingleActiveJobHandler
 import com.mitsinsar.scorpcasestudy.peoplelisting.ui.model.PeoplePreview
 import com.mitsinsar.scorpcasestudy.peoplelisting.ui.usecase.PeoplePreviewUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,14 +21,66 @@ class PeopleViewModel @Inject constructor(
     val peoplePreviewFlow: StateFlow<PeoplePreview?>
         get() = _peoplePreviewFlow
 
+    private var previewInitializationJobHandler = SingleActiveJobHandler()
+    private var loadMorePeopleJobHandler = SingleActiveJobHandler()
+
     init {
         initInitialPreviewState()
     }
 
+    fun onInfoBarActionClick() {
+        _peoplePreviewFlow.value?.let { currentPreview ->
+            viewModelScope.launch {
+                peoplePreviewUseCase.getUpdatedPreviewWithInfoAction(currentPreview).collectLatest { newPreview ->
+                    _peoplePreviewFlow.value = newPreview
+                }
+            }
+        }
+    }
+
+    fun onSwipeToRefresh() {
+        previewInitializationJobHandler.runIfJobIsNotActive {
+            viewModelScope.launch {
+                peoplePreviewUseCase.refreshPeopleList(_peoplePreviewFlow.value).collectLatest { newPreview ->
+                    _peoplePreviewFlow.value = newPreview
+                }
+            }
+        }
+    }
+
+    fun onRecyclerItemsInserted(isLastItemCompletelyVisible: Boolean) {
+        _peoplePreviewFlow.value?.let { currentPreview ->
+            loadMorePeopleJobHandler.runIfJobIsNotActive {
+                viewModelScope.launch {
+                    peoplePreviewUseCase.loadMoreIfListedItemsAreSmallerThanScreen(
+                        isLastItemCompletelyVisible,
+                        currentPreview
+                    )?.collectLatest { newPreview ->
+                        _peoplePreviewFlow.value = newPreview
+                    }
+                }
+            }
+        }
+    }
+
+    fun onRecyclerBottomItemCountThreshold() {
+        _peoplePreviewFlow.value?.let { currentPreview ->
+            loadMorePeopleJobHandler.runIfJobIsNotActive {
+                viewModelScope.launch {
+                    peoplePreviewUseCase.loadMorePeople(currentPreview).collectLatest { newPreview ->
+                        _peoplePreviewFlow.value = newPreview
+                    }
+                }
+            }
+        }
+    }
+
     private fun initInitialPreviewState() {
-        viewModelScope.launch {
-            peoplePreviewUseCase.getInitialPreview().collectLatest { newPreview ->
-                _peoplePreviewFlow.value = newPreview
+        previewInitializationJobHandler.runIfJobIsNotActive {
+            viewModelScope.launch {
+                peoplePreviewUseCase.getInitialPreview().collectLatest { newPreview ->
+                    _peoplePreviewFlow.value = newPreview
+                }
             }
         }
     }

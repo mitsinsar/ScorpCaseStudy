@@ -1,40 +1,50 @@
 package com.mitsinsar.scorpcasestudy.peoplelisting.ui.usecase
 
-import com.mitsinsar.scorpcasestudy.peoplelisting.domain.usecase.GetPeopleUseCase
 import com.mitsinsar.scorpcasestudy.peoplelisting.ui.mapper.PeoplePreviewMapper
-import com.mitsinsar.scorpcasestudy.peoplelisting.ui.mapper.PersonItemMapper
 import com.mitsinsar.scorpcasestudy.peoplelisting.ui.model.PeoplePreview
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class PeoplePreviewUseCase @Inject constructor(
-    private val getPeopleUseCase: GetPeopleUseCase,
     private val peoplePreviewMapper: PeoplePreviewMapper,
-    private val personItemMapper: PersonItemMapper
+    private val getUpdatedPeoplePreviewWithPeopleListUseCase: GetUpdatedPeoplePreviewWithPeopleListUseCase
 ) {
 
-    fun getInitialPreview(): Flow<PeoplePreview> = flow {
-        val initialPreview = peoplePreviewMapper.map(isLoadingVisible = true)
-        emit(initialPreview)
-        getPeopleUseCase(null)
-            .onSuccess { paginatedResult ->
-                val peopleItem = paginatedResult.data.map { person ->
-                    personItemMapper.map(person.id.toString(), person.fullName)
-                }
-                val preview = peoplePreviewMapper.map(peopleItem = peopleItem, nextPageUrl = paginatedResult.nextUrl)
-                emit(preview)
-            }
-            .onFailure {
-                // TODO handle error case
-            }
+    suspend fun getInitialPreview(): Flow<PeoplePreview> {
+        return getUpdatedPeoplePreviewWithPeopleListUseCase(createInitialPreview(), nextUrl = null)
     }
 
-    fun loadMorePeople(nextUrl: String?): Flow<PeoplePreview> = flow {
-        // TODO load more people with next url
+    suspend fun loadMorePeople(previousPreview: PeoplePreview): Flow<PeoplePreview> {
+        return getUpdatedPeoplePreviewWithPeopleListUseCase(previousPreview, nextUrl = previousPreview.nextPageUrl)
     }
 
-    fun refreshPeopleList(): Flow<PeoplePreview> = flow {
-        // TODO refresh people list
+    suspend fun loadMoreIfListedItemsAreSmallerThanScreen(
+        isLastItemCompletelyVisible: Boolean,
+        previousPreview: PeoplePreview
+    ): Flow<PeoplePreview>? {
+        return if (isLastItemCompletelyVisible) {
+            getUpdatedPeoplePreviewWithPeopleListUseCase(previousPreview, previousPreview.nextPageUrl)
+        } else null
     }
+
+    suspend fun refreshPeopleList(previousPreview: PeoplePreview?): Flow<PeoplePreview> {
+        val safeListClearedPreview = getSafePreview(previousPreview?.copy(peopleItem = emptyList()))
+        return getUpdatedPeoplePreviewWithPeopleListUseCase(safeListClearedPreview, nextUrl = null)
+    }
+
+    suspend fun getUpdatedPreviewWithInfoAction(previousPreview: PeoplePreview): Flow<PeoplePreview> {
+        return getUpdatedPeoplePreviewWithPeopleListUseCase(previousPreview, nextUrl = previousPreview.nextPageUrl)
+//        Since every action refreshes the list, there is no reason to check info action
+//        when (previousPreview.infoBarAction) {
+//            GenericErrorBar -> TODO()
+//            ServerErrorBar -> TODO()
+//            NoUserFoundInfoBar -> TODO()
+//        }
+    }
+
+    private fun getSafePreview(previousPreview: PeoplePreview?): PeoplePreview {
+        return previousPreview.takeIf { it != null } ?: createInitialPreview()
+    }
+
+    private fun createInitialPreview() = peoplePreviewMapper.map()
 }
