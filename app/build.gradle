@@ -8,15 +8,16 @@ plugins {
 apply from: 'linter.gradle'
 
 android {
-    namespace 'com.mitsinsar.scorpcasestudy'
-    compileSdk 33
+    namespace application.applicationId
+    compileSdk targets.compileSdkVersion
 
     defaultConfig {
-        applicationId "com.mitsinsar.scorpcasestudy"
-        minSdk 24
-        targetSdk 33
-        versionCode 1
-        versionName "1.0"
+        applicationId application.applicationId
+        minSdkVersion targets.minSdkVersion
+        targetSdkVersion targets.targetSdkVersion
+
+        versionCode versions.code
+        versionName versions.name
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -43,22 +44,20 @@ android {
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.8.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation "androidx.core:core-ktx:${libVersions.coreKtx}"
+    implementation "androidx.appcompat:appcompat:${libVersions.appCompat}"
+    implementation "com.google.android.material:material:${libVersions.material}"
+    implementation "androidx.constraintlayout:constraintlayout:${libVersions.constraintLayout}"
 
-    implementation "androidx.navigation:navigation-fragment-ktx:2.5.3"
-    implementation "androidx.navigation:navigation-ui-ktx:2.5.3"
+    implementation "androidx.navigation:navigation-fragment-ktx:${libVersions.fragmentNavigation}"
+    implementation "androidx.navigation:navigation-ui-ktx:${libVersions.fragmentNavigation}"
 
-    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:${libVersions.swipeRefresh}"
 
     // Hilt
-    implementation "com.google.dagger:hilt-android:2.45"
-    kapt "com.google.dagger:hilt-compiler:2.44"
+    implementation "com.google.dagger:hilt-android:${libVersions.hiltAndroid}"
+    kapt "com.google.dagger:hilt-compiler:${libVersions.hiltCompiler}"
 
-    testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.1'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    testImplementation "junit:junit:${testLibVersions.junit}"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:${testLibVersions.junitCoroutine}"
 }
